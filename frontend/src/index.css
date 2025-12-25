@@ -31,20 +31,17 @@
         --ring: 258 90% 66%;
         --radius: 0.5rem;
     }
-}
 
-@layer base {
     * {
-        @apply border-border;
-    }
-    
-    html {
-        @apply dark;
+        border-color: hsl(var(--border));
     }
     
     body {
-        @apply bg-background text-foreground antialiased;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
         font-family: 'Plus Jakarta Sans', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     
     h1, h2, h3, h4, h5, h6 {
@@ -90,34 +87,44 @@
 
 /* Kanban column drop indicator */
 .kanban-column.drag-over {
-    @apply ring-2 ring-primary/50 bg-primary/5;
+    box-shadow: 0 0 0 2px hsl(258 90% 66% / 0.5);
+    background-color: hsl(258 90% 66% / 0.05);
 }
 
 /* Task card animations */
 .task-card {
-    @apply transition-all duration-200;
+    transition: all 0.2s ease;
 }
 
 .task-card:hover {
-    @apply -translate-y-0.5 shadow-lg shadow-black/20;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
 }
 
 /* Priority indicators */
 .priority-high {
-    @apply bg-destructive/20 text-destructive border-destructive/30;
+    background-color: hsl(343 84% 49% / 0.2);
+    color: hsl(343 84% 60%);
+    border-color: hsl(343 84% 49% / 0.3);
 }
 
 .priority-medium {
-    @apply bg-warning/20 text-warning border-warning/30;
+    background-color: hsl(38 92% 50% / 0.2);
+    color: hsl(38 92% 60%);
+    border-color: hsl(38 92% 50% / 0.3);
 }
 
 .priority-low {
-    @apply bg-success/20 text-success border-success/30;
+    background-color: hsl(160 84% 39% / 0.2);
+    color: hsl(160 84% 50%);
+    border-color: hsl(160 84% 39% / 0.3);
 }
 
 /* Glass effect */
 .glass {
-    @apply bg-black/40 backdrop-blur-xl border-white/10;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(24px);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Animate entrance */
