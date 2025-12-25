@@ -1,34 +1,92 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* App-specific styles */
+
+/* Sidebar styles */
+.sidebar {
+    @apply fixed left-0 top-0 h-full w-64 border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60;
+    @apply flex flex-col z-40;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
+/* Main content area */
+.main-content {
+    @apply ml-64 min-h-screen p-8;
+}
+
+/* Kanban board */
+.kanban-board {
+    @apply flex gap-6 overflow-x-auto pb-8 items-start;
+    min-height: calc(100vh - 12rem);
+}
+
+/* Kanban column */
+.kanban-column {
+    @apply flex-shrink-0 w-80 rounded-xl border border-border bg-card/50 backdrop-blur-sm;
+    @apply flex flex-col max-h-[calc(100vh-14rem)];
+}
+
+.kanban-column-header {
+    @apply p-4 border-b border-border flex items-center justify-between sticky top-0 bg-card/80 backdrop-blur-sm rounded-t-xl;
+}
+
+.kanban-column-content {
+    @apply p-3 flex-1 overflow-y-auto space-y-3;
+}
+
+/* Task card */
+.task-card {
+    @apply rounded-lg border border-border bg-card p-4 cursor-pointer;
+    @apply hover:border-primary/50;
+}
+
+/* Category badge */
+.category-badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-secondary border border-border;
+}
+
+/* Due date badge */
+.due-date-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono;
+    @apply bg-muted text-muted-foreground;
+}
+
+.due-date-badge.overdue {
+    @apply bg-destructive/20 text-destructive;
+}
+
+.due-date-badge.today {
+    @apply bg-warning/20 text-warning;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        @apply -translate-x-full transition-transform duration-300;
+    }
+    
+    .sidebar.open {
+        @apply translate-x-0;
+    }
+    
+    .main-content {
+        @apply ml-0 p-4;
+    }
+    
+    .kanban-column {
+        @apply w-72;
     }
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Empty state */
+.empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-center;
 }
 
-.App-link {
-    color: #61dafb;
+.empty-state-icon {
+    @apply w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Stats card */
+.stats-card {
+    @apply rounded-xl border border-border bg-card p-6;
+    @apply hover:border-primary/30 transition-colors;
 }

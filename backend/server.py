@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,10 +6,10 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
-
+from enum import Enum
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,46 +25,180 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Enums
+class TaskStatus(str, Enum):
+    TODO = "todo"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+
+class TaskPriority(str, Enum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
 
 # Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+class Category(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    name: str
+    color: str = "#8B5CF6"
+    is_default: bool = False
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class CategoryCreate(BaseModel):
+    name: str
+    color: str = "#8B5CF6"
 
-# Add your routes to the router instead of directly to app
+class Task(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: Optional[str] = ""
+    status: TaskStatus = TaskStatus.TODO
+    priority: TaskPriority = TaskPriority.MEDIUM
+    category_id: Optional[str] = None
+    due_date: Optional[str] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    completed_at: Optional[str] = None
+
+class TaskCreate(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    status: TaskStatus = TaskStatus.TODO
+    priority: TaskPriority = TaskPriority.MEDIUM
+    category_id: Optional[str] = None
+    due_date: Optional[str] = None
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[TaskStatus] = None
+    priority: Optional[TaskPriority] = None
+    category_id: Optional[str] = None
+    due_date: Optional[str] = None
+
+# Default categories
+DEFAULT_CATEGORIES = [
+    {"id": "cat-work", "name": "Work", "color": "#8B5CF6", "is_default": True},
+    {"id": "cat-personal", "name": "Personal", "color": "#10B981", "is_default": True},
+    {"id": "cat-shopping", "name": "Shopping", "color": "#F59E0B", "is_default": True},
+    {"id": "cat-health", "name": "Health", "color": "#E11D48", "is_default": True},
+]
+
+# Initialize default categories
+@app.on_event("startup")
+async def init_default_categories():
+    for cat in DEFAULT_CATEGORIES:
+        existing = await db.categories.find_one({"id": cat["id"]})
+        if not existing:
+            await db.categories.insert_one(cat)
+
+# Root endpoint
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Task Manager API"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+# Category endpoints
+@api_router.get("/categories", response_model=List[Category])
+async def get_categories():
+    categories = await db.categories.find({}, {"_id": 0}).to_list(100)
+    return categories
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.post("/categories", response_model=Category)
+async def create_category(input: CategoryCreate):
+    category = Category(name=input.name, color=input.color)
+    doc = category.model_dump()
+    await db.categories.insert_one(doc)
+    return category
+
+@api_router.delete("/categories/{category_id}")
+async def delete_category(category_id: str):
+    result = await db.categories.delete_one({"id": category_id, "is_default": {"$ne": True}})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Category not found or cannot delete default category")
+    # Remove category from tasks
+    await db.tasks.update_many({"category_id": category_id}, {"$set": {"category_id": None}})
+    return {"message": "Category deleted"}
+
+# Task endpoints
+@api_router.get("/tasks", response_model=List[Task])
+async def get_tasks(
+    status: Optional[TaskStatus] = None,
+    priority: Optional[TaskPriority] = None,
+    category_id: Optional[str] = None
+):
+    query = {}
+    if status:
+        query["status"] = status.value
+    if priority:
+        query["priority"] = priority.value
+    if category_id:
+        query["category_id"] = category_id
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    tasks = await db.tasks.find(query, {"_id": 0}).to_list(1000)
+    return tasks
+
+@api_router.post("/tasks", response_model=Task)
+async def create_task(input: TaskCreate):
+    task = Task(**input.model_dump())
+    doc = task.model_dump()
+    await db.tasks.insert_one(doc)
+    return task
+
+@api_router.get("/tasks/{task_id}", response_model=Task)
+async def get_task(task_id: str):
+    task = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+@api_router.put("/tasks/{task_id}", response_model=Task)
+async def update_task(task_id: str, input: TaskUpdate):
+    update_data = {k: v for k, v in input.model_dump().items() if v is not None}
     
-    return status_checks
+    # Handle completion
+    if input.status == TaskStatus.DONE:
+        update_data["completed_at"] = datetime.now(timezone.utc).isoformat()
+    elif input.status and input.status != TaskStatus.DONE:
+        update_data["completed_at"] = None
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.tasks.update_one(
+        {"id": task_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    return task
+
+@api_router.delete("/tasks/{task_id}")
+async def delete_task(task_id: str):
+    result = await db.tasks.delete_one({"id": task_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"message": "Task deleted"}
+
+# Dashboard stats
+@api_router.get("/stats")
+async def get_stats():
+    total = await db.tasks.count_documents({})
+    todo = await db.tasks.count_documents({"status": "todo"})
+    in_progress = await db.tasks.count_documents({"status": "in_progress"})
+    done = await db.tasks.count_documents({"status": "done"})
+    
+    high_priority = await db.tasks.count_documents({"priority": "high", "status": {"$ne": "done"}})
+    
+    return {
+        "total": total,
+        "todo": todo,
+        "in_progress": in_progress,
+        "done": done,
+        "high_priority": high_priority
+    }
 
 # Include the router in the main app
 app.include_router(api_router)
