@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "project_name": "Notion-Style Task Manager",
+    "designer": "E1",
+    "version": "1.0",
+    "theme_archetype": "Archetype 2: Electric & Neon (Deep Space Variant)"
+  },
+  "typography": {
+    "fonts": {
+      "headings": {
+        "family": "Manrope, sans-serif",
+        "weights": ["600", "800"],
+        "usage": "All section titles, modal headers, and kanban column titles."
+      },
+      "body": {
+        "family": "Plus Jakarta Sans, sans-serif",
+        "weights": ["400", "500"],
+        "usage": "General UI text, descriptions, inputs."
+      },
+      "mono": {
+        "family": "JetBrains Mono, monospace",
+        "weights": ["400"],
+        "usage": "Dates, IDs, Tags, and tiny metadata."
+      }
+    },
+    "scale": {
+      "h1": "text-4xl md:text-5xl font-extrabold tracking-tight leading-none",
+      "h2": "text-3xl font-bold tracking-tight",
+      "h3": "text-xl font-semibold tracking-normal",
+      "body": "text-sm leading-relaxed text-muted-foreground",
+      "caption": "text-xs font-mono tracking-wide text-muted-foreground/70"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#09090B",
+      "surface": "#18181B",
+      "surface_highlight": "#27272A",
+      "border": "#27272A",
+      "primary": "#8B5CF6",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#3F3F46",
+      "accent_success": "#10B981",
+      "accent_warning": "#F59E0B",
+      "accent_destructive": "#E11D48",
+      "text_main": "#FAFAFA",
+      "text_muted": "#A1A1AA"
+    },
+    "usage_rules": {
+      "gradients": "Use subtle noise textures over solid colors instead of linear gradients.",
+      "borders": "1px solid #27272A. Active states use #8B5CF6.",
+      "glassmorphism": "bg-black/40 backdrop-blur-xl border-white/10"
+    }
+  },
+  "layout": {
+    "grid_system": "The Control Room Grid (Mode B)",
+    "spacing": {
+      "container_padding": "p-6 md:p-8",
+      "gap_standard": "gap-4",
+      "gap_wide": "gap-8"
+    },
+    "structure": {
+      "sidebar": "w-64 fixed left-0 h-full border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+      "main_content": "ml-64 p-8 w-[calc(100%-16rem)]",
+      "kanban_board": "flex gap-6 overflow-x-auto pb-8 h-[calc(100vh-12rem)] items-start"
+    }
+  },
+  "components": {
+    "buttons": {
+      "style": "h-9 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+      "variants": {
+        "default": "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        "ghost": "hover:bg-accent hover:text-accent-foreground",
+        "outline": "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
+      }
+    },
+    "cards": {
+      "kanban_card": "group relative rounded-lg border border-border bg-card p-4 shadow-sm transition-all hover:border-primary/50 hover:shadow-md",
+      "dashboard_widget": "rounded-xl border border-border bg-card text-card-foreground shadow"
+    },
+    "inputs": {
+      "style": "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "modals": {
+      "overlay": "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "content": "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Use a subtle noise SVG overlay on the main background to reduce digital flatness.",
+    "shadows": "shadow-[0_8px_30px_rgb(0,0,0,0.12)] for floating elements.",
+    "borders": "Use 'tracing beam' effect on active cards (animated border gradient)."
+  },
+  "assets": {
+    "images": [
+      {
+        "category": "background",
+        "url": "https://images.unsplash.com/photo-1764440446474-6043398e3c30?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGRhcmslMjBnbGFzcyUyMGdlb21ldHJpYyUyMHNoYXBlfGVufDB8fHx8MTc2NjY5NDkyNXww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract dark geometric shapes for empty states or login background"
+      },
+      {
+        "category": "avatar",
+        "url": "https://images.unsplash.com/photo-1758639842386-65cab1ac058c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwyfHxtaW5pbWFsaXN0JTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzY2Njk0OTI2fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Male avatar for assignee mockups"
+      },
+      {
+        "category": "avatar",
+        "url": "https://images.unsplash.com/photo-1736462832668-551150b5e5b2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzY2Njk0OTI2fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Female avatar for assignee mockups"
+      }
+    ],
+    "icons": "Use 'lucide-react' for all UI icons. Use 'LayoutDashboard', 'CheckSquare', 'Calendar', 'Settings', 'Plus', 'MoreVertical', 'Trash2'."
+  },
+  "universal_guidelines": {
+    "principles": [
+      "Fusion over Imitation: Mix industrial dashboard aesthetics with soft, organic motion.",
+      "Negative Space: Don't cram the Kanban columns. Leave breathing room.",
+      "Contrast: Text must be legible. Use APCA standards.",
+      "Anti-Pattern: No full-screen gradients. No 'Inter' for headings."
+    ],
+    "technical_constraints": [
+      "Use 'sonner' for toasts.",
+      "Use 'date-fns' for date formatting.",
+      "Use 'react-hook-form' + 'zod' for forms.",
+      "All interactive elements must have 'data-testid'."
+    ]
+  },
+  "instructions_to_main_agent": "Implement the dashboard using the 'Control Room' grid. The sidebar should be collapsible on mobile. The Kanban board must support drag-and-drop (mocked or functional). Use the provided image URLs for avatars. Ensure the dark theme is the default and only theme."
+}
